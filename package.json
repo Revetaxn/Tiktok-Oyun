@@ -1,0 +1,41 @@
+{
+  "name": "tiktok-arena",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TikTok LIVE sohbet, begeni ve hediyeleriyle oynanan 16 kisilik cop adam arena oyunu (Revetaxn kanali icin)",
+  "main": "server.js",
+  "license": "MIT",
+  "author": "Revetaxn",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Revetaxn/Tiktok-Oyun.git"
+  },
+  "homepage": "https://github.com/Revetaxn/Tiktok-Oyun#readme",
+  "bugs": {
+    "url": "https://github.com/Revetaxn/Tiktok-Oyun/issues"
+  },
+  "keywords": [
+    "tiktok",
+    "tiktok-live",
+    "live-stream",
+    "game",
+    "arena",
+    "canvas",
+    "obs",
+    "socket.io",
+    "turkce"
+  ],
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "tiktok-live-connector": "^2.5.0"
+  }
+}

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TikTok Arena · Çöp Adam Savaşı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene"></canvas>
+    <div class="bg-grid"></div>
+    <div class="vignette"></div>
+    <div class="scanlines"></div>
+
+    <!-- ÜST BAR -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><span></span></div>
+        <div class="brand-text">
+          <h1>ARENA</h1>
+          <p>ÇÖP ADAM SAVAŞI</p>
+        </div>
+      </div>
+
+      <div class="streamer" id="streamerChip">
+        <span class="live-dot" id="liveDot"></span>
+        <div class="streamer-meta">
+          <b id="streamerName">@revetaxn</b>
+          <small id="streamerStatus">demo akışı</small>
+        </div>
+        <button id="connectBtn" class="mini-btn admin-only">Bağlan</button>
+        <button id="soundBtn" class="icon-btn" title="Ses">🔊</button>
+      </div>
+
+      <div class="topstats">
+        <div class="stat"><span class="stat-icon">👁️</span><b id="viewerCount">0</b><small>izleyici</small></div>
+        <div class="stat"><span class="stat-icon">💎</span><b id="diamondCount">0</b><small>elmas</small></div>
+        <div class="stat"><span class="stat-icon">🎁</span><b id="giftCount">0</b><small>hediye</small></div>
+      </div>
+
+      <button id="settingsBtn" class="icon-btn admin-only" title="Yayın kontrol paneli">⚙️</button>
+    </header>
+
+    <!-- RAUNT HUD -->
+    <div class="round-hud" id="roundHud">
+      <div class="round-top">
+        <span class="phase-label" id="phaseLabel">ROUND</span>
+        <span class="round-number" id="roundNumber">1</span>
+        <span class="phase-label right" id="timerText">01:50</span>
+      </div>
+      <div class="timebar"><i id="timebarFill" style="width:100%"></i></div>
+      <div class="round-meta">
+        <span><b id="aliveText">16</b> savaşçı</span>
+        <span class="sep">•</span>
+        <span id="roundState">kapışma sürüyor</span>
+      </div>
+    </div>
+
+    <!-- SAĞ: CANLI AKIŞ -->
+    <aside class="panel feed-panel">
+      <div class="panel-head">
+        <div class="head-left"><span class="head-dot"></span> CANLI AKIŞ</div>
+        <span class="head-badge" id="feedBadge">LIVE</span>
+      </div>
+      <div class="feed" id="feed"></div>
+    </aside>
+
+    <!-- SAĞ ALT: SIRALAMA -->
+    <aside class="panel leaders-panel">
+      <div class="panel-tabs">
+        <button class="tab-btn active" data-tab="gifters">HEDİYE KRALLARI</button>
+        <button class="tab-btn" data-tab="fighters">GÜÇ SIRALAMASI</button>
+      </div>
+      <div class="leaders" id="leaderList"></div>
+    </aside>
+
+    <!-- SOL ALT: YETENEK REHBERİ -->
+    <section class="legend panel" id="legend"></section>
+
+    <!-- ALT ORTA: SIRADAKİLER -->
+    <div class="queue-strip" id="queueStrip"></div>
+
+    <!-- HEDİYE DUYURUSU -->
+    <div class="announce" id="announce"></div>
+
+    <!-- ŞAMPİYON -->
+    <div class="champion-banner" id="championBanner">
+      <div class="champ-rays"></div>
+      <div class="crown">👑</div>
+      <div class="eyebrow">ROUND <span id="champRound">1</span> ŞAMPİYONU</div>
+      <div class="champ-name" id="champName">—</div>
+      <div class="champ-sub">
+        <span class="mult" id="champPower">×1.10</span> güç kazandı
+        <span class="champ-sep">|</span> Sıradaki raunt <b id="champCountdown">7</b> sn
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- AYAR PANELİ -->
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <div class="modal">
+        <header class="modal-head">
+          <div>
+            <h2>Yayın Kontrol</h2>
+            <p>TikTok bağlantısı, oyun ayarları ve test araçları</p>
+          </div>
+          <button class="icon-btn" id="closeModal" title="Kapat">✕</button>
+        </header>
+
+        <nav class="modal-tabs">
+          <button class="mtab active" data-mtab="connect">Bağlantı</button>
+          <button class="mtab" data-mtab="settings">Oyun Ayarları</button>
+          <button class="mtab" data-mtab="test">Test</button>
+          <button class="mtab" data-mtab="help">Nasıl Oynanır</button>
+        </nav>
+
+        <div class="modal-body">
+          <section class="mpanel active" data-mpanel="connect">
+            <div class="card">
+              <label class="field">
+                <span>TikTok kullanıcı adı</span>
+                <div class="input-row">
+                  <span class="at">@</span>
+                  <input id="usernameInput" type="text" placeholder="revetaxn" autocomplete="off" />
+                  <button class="primary-btn" id="doConnect">Bağlan</button>
+                </div>
+              </label>
+              <div class="conn-status" id="connStatus">
+                <span class="status-pill">HAZIR</span>
+                <p>Yayıncı canlıdaysa sohbet ve hediyeler otomatik olarak oyuna akar.</p>
+              </div>
+              <div class="hint">
+                <b>Nasıl?</b> TikTok hesabın <b>canlı yayındayken</b> kullanıcı adını yazıp
+                <b>Bağlan</b>'a bas. Sohbet, beğeni ve hediyeler otomatik olarak oyuna akar.
+                Ek API anahtarı gerekmez; yayın kapalıysa panel "yayında değil" uyarısı verir.
+              </div>
+              <div class="row-actions">
+                <button class="ghost-btn" id="doDisconnect">Bağlantıyı Kes</button>
+                <button class="ghost-btn" id="refreshStatus">Durumu Yenile</button>
+              </div>
+            </div>
+
+            <div class="card demo-card">
+              <div>
+                <h3>Demo Akışı</h3>
+                <p>Sohbet, beğeni ve hediye simülasyonu. Bağlantı yokken arenayı test etmek için ideal.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="demoToggle" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="mpanel" data-mpanel="settings">
+            <div class="card">
+              <h3>Raunt</h3>
+              <div class="grid-2">
+                <label class="field"><span>Raunt süresi (sn)</span><input id="setRoundSeconds" type="number" min="25" max="600" /></label>
+                <label class="field"><span>Ara süresi (sn)</span><input id="setIntermission" type="number" min="2" max="60" /></label>
+                <label class="field"><span>Arenadaki savaşçı</span><input id="setRoundSize" type="number" min="4" max="24" /></label>
+                <label class="field"><span>Kazanan güç çarpanı</span><input id="setWinMultiplier" type="number" min="1" max="2" step="0.05" /></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Hediye Eşikleri (jeton)</h3>
+              <div class="grid-4">
+                <label class="field"><span>💎 Elmas</span><input id="setThresholdDiamond" type="number" min="2" /></label>
+                <label class="field"><span>⚡ Yıldırım</span><input id="setThresholdLightning" type="number" min="3" /></label>
+                <label class="field"><span>☄️ Meteor</span><input id="setThresholdMeteor" type="number" min="4" /></label>
+                <label class="field"><span>🦁 Titan</span><input id="setThresholdTitan" type="number" min="5" /></label>
+              </div>
+              <label class="field wide">
+                <span>Diriliş hediyeleri (virgülle ayır)</span>
+                <input id="setReviveGifts" type="text" placeholder="rose, gül, tiktok" />
+              </label>
+            </div>
+
+            <div class="card">
+              <h3>Katılım</h3>
+              <label class="check"><input type="checkbox" id="setJoinChat" /> Sohbet yazan oyuncu arenaya katılsın</label>
+              <label class="check"><input type="checkbox" id="setJoinGift" /> Hediye atan oyuncu arenaya katılsın</label>
+            </div>
+
+            <div class="row-actions end">
+              <button class="primary-btn" id="saveSettings">Ayarları Kaydet</button>
+            </div>
+          </section>
+
+          <section class="mpanel" data-mpanel="test">
+            <div class="card">
+              <h3>Test Oyuncusu</h3>
+              <div class="grid-2">
+                <label class="field"><span>Takma ad</span><input id="testNickname" type="text" value="TestOyuncu" /></label>
+                <label class="field"><span>Sohbet mesajı</span><input id="testChatText" type="text" value="hadi arena!" /></label>
+              </div>
+              <div class="row-actions">
+                <button class="ghost-btn" id="sendTestChat">💬 Sohbet Gönder</button>
+                <button class="ghost-btn" id="sendTestJoin">🚪 Arenaya Kat</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Hediye Simüle Et</h3>
+              <p class="muted">Butona bastığında test oyuncusu seçili hediyeyi atmış gibi davranır.</p>
+              <div class="gift-grid" id="giftGrid"></div>
+            </div>
+
+            <div class="card danger-card">
+              <div>
+                <h3>Oyunu Sıfırla</h3>
+                <p class="muted">Tüm oyuncular, puanlar ve raunt geçmişi temizlenir.</p>
+              </div>
+              <button class="danger-btn" id="resetGame">Sıfırla</button>
+            </div>
+          </section>
+
+          <section class="mpanel" data-mpanel="help">
+            <div class="card help">
+              <h3>Nasıl oynanır?</h3>
+              <ol>
+                <li><b>Sohbet yaz:</b> İlk mesajınla arenaya katılırsın, çöp adamın savaşa girer.</li>
+                <li><b>Hediye at:</b> Hediye miktarına göre özel yetenek tetiklersin. 5 jeton elmas vuruşu, 10 jeton yıldırım, 50 jeton meteor.</li>
+                <li><b>Gül at:</b> Elendiysen seni anında diriltir. Yaşıyorsan canını doldurur.</li>
+                <li><b>Raunt:</b> 16 savaşçı kapışır. Son kalan şampiyon olur ve sonraki raunta <b>×1.10</b> güçle başlar.</li>
+                <li><b>Konuşma balonu:</b> Sohbet mesajların çöp adamının üstünde görünür.</li>
+              </ol>
+            </div>
+            <div class="card help">
+              <h3>OBS Kurulumu</h3>
+              <p>OBS'te <b>Kaynak → Tarayıcı</b> ekle, URL olarak <code id="obsUrl">http://localhost:3000/?overlay=1</code> yaz.
+              Genişlik 1920, yükseklik 1080. Yayın panelini ayrı bir tarayıcı sekmesinde açıp oradan bağlantıyı yönetebilirsin.</p>
+            </div>
+            <div class="card help">
+              <h3>Güçlü İpuçları</h3>
+              <ul>
+                <li>Hediye serisi (streak) gönderirsen her adet ayrı bir vuruş olarak uygulanır.</li>
+                <li>Ölüyken hediye atmak seni düşük canla geri getirir; gül atmak daha fazla canla diriltir.</li>
+                <li>Yeni gelen oyuncular sıradaki raunt için sıraya alınır; ölü botların yerine hemen girebilirler.</li>
+                <li>Sağ üstteki <b>Güç Sıralaması</b> şampiyonların biriktirdiği çarpanı gösterir.</li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/net.js"></script>
+  <script src="/js/sound.js"></script>
+  <script src="/js/render.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
